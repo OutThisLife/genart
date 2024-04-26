@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --columns: 40;
+  
+  --vsq: calc(0.5svw + 0.5svh);
+  --cell: calc((var(--vsq) * 50) / var(--columns));
+  --pad-scale: 3;
+  --pad: calc(var(--vsq) * var(--pad-scale));
+  
+  --easing: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+* {
+  @apply m-0 p-0 box-border;
+
+  &:focus {
+    @apply outline-none;
+  }
+}
+
+html {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-size: calc(0.875rem + ((1vw - 0.48rem) * 0.1736));
+  line-height: 1.2;
+  overflow-anchor: none;
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+video,
+svg {
+  @apply max-w-full h-auto;
+}
