@@ -16,6 +16,7 @@ precision highp float;
 #define dot2(v) dot(v, v)
 #define hue(v) (.6 + .6 * cos(6.3 * (v) + vec3(0, 23, 21)))
 #define rot(a) mat2(cos(a), sin(a), -sin(a), cos(a))
+#define rot3d(a) mat3(cos(a), sin(a), 0, -sin(a), cos(a), 0, 0, 0, 1)
 #define mapLinear(x, a1, a2, b1, b2) b1 + (x - a1) * (b2 - b1) / (a2 - a1)
 
 // ---------------------------------------------------
@@ -115,21 +116,28 @@ void main() {
     vec2 p = vUv - .5;
     p.x *= R.x;
 
+    t *= .5;
     vec2 o = vec2(cos(t * .5), sin(t * .5));
+    o *= rot(t);
 
     // float d = .1 / pnoise(((p * 8.) / 1. - fbm((p * rot(t * .2)) * 3.)) -
     //                       vec2(cos(t * .3 + pnoise(p * 100.)),
     //                            sin(t * .3 + pnoise(p * 30. * pnoise(p)))));
     float n = rand(p.y);
-    float d = .1 / pnoise(((p * rot(-t * .3) * 4.) *
-                           SM(0., t, .1 / fbm(p * rot(t * .5)))) -
+    float d = .2 / pnoise(((p * rot(-t * .3) * 4.) *
+                           SM(0., ceil(t), .1 / fbm(p * rot(t * .5)))) -
                               o,
-                          3);
+                          int(n));
+    d += .1 / tan(d);
     d = saturate(d);
-    d = mapLinear(d, 0., 1.5, 0., 1.);
-    // d = 1. - SM(p.y, 1., d);
+    d = mapLinear(d, 0., 1.001, 0., 1.);
 
-    col = mix(col, vec4(1), d);
+    vec3 c0 = vec3(1);
+    c0 = mix(hue(d + t + p.y), vec3(10), p.x * p.y);
+    c0 = pow(c0, vec3(p.x - .3, p.y - .3, p.x + p.y));
+
+    // col = mix(col, vec4(hue(d + t - p.y), 1), 1. - d);
+    col = mix(col, vec4(c0, 1), 1. - d);
     col = mix(col, fb, .99);
   }
 
