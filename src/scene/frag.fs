@@ -102,12 +102,21 @@ float pnoise(vec2 p, int res) {
   return nf * nf * nf * nf;
 }
 
+vec3 calcNormal(vec2 p) {
+  vec2 e = vec2(.01, 0);
+  vec3 n;
+  n.x = pnoise(p + e.xy, 3) - pnoise(p - e.xy, 3);
+  n.y = pnoise(p + e.yx, 3) - pnoise(p - e.yx, 3);
+  n.z = pnoise(p + e.yy, 3) - pnoise(p - e.yy, 3);
+  return normalize(n);
+}
+
 void main() {
   vec2 st = (vUv * 2. - 1.) / R.xy;
   vec2 uv = gl_FragCoord.xy / Rpx.xy;
 
   float t = uTime;
-  float mo = distance(uMouse, vUv);
+  float mo = distance(uMouse, st);
 
   vec4 col;
   vec4 fb = texture(uChannel0, uv);
@@ -137,6 +146,24 @@ void main() {
     c0 = pow(c0, vec3(p.x - .3, p.y - .3, p.x + p.y));
 
     // col = mix(col, vec4(hue(d + t - p.y), 1), 1. - d);
+    // col = mix(col, vec4(c0, 1), 1. - d);
+    // col = mix(col, fb, .99);
+  }
+
+  {
+    vec2 p = vUv * 10. - (10. / 2.);
+
+    t = mo * t * 2.;
+    float d = .05 / length(p * rot(t) - vec2(mod(t, 3.) - 1., 0));
+    d += .1 /
+         atan(d, .001 / pnoise(p * 2. - vec2(cos(t * pnoise(vec2(t, -t), 2)),
+                                             sin(t)),
+                               3));
+    // d = saturate(d);
+    // d *= 1. - mo;
+
+    vec3 c0 = vec3(1, .9, .8);
+
     col = mix(col, vec4(c0, 1), 1. - d);
     col = mix(col, fb, .99);
   }

@@ -22,6 +22,8 @@
 }
 
 html {
+  @apply cursor-none;
+  
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   font-size: calc(0.875rem + ((1vw - 0.48rem) * 0.1736));
